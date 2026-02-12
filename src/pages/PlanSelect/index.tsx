@@ -92,7 +92,7 @@ export default function PlanSelect() {
         <p className="text-slate-500">请先完成产品分析</p>
         <button
           onClick={() => setStep('input')}
-          className="mt-4 text-blue-600 hover:text-blue-500"
+          className="mt-4 text-emerald-600 hover:text-emerald-500"
         >
           返回上一步
         </button>
@@ -127,7 +127,7 @@ export default function PlanSelect() {
               </div>
               <button
                 onClick={() => setStep('input')}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                className="flex items-center gap-1 px-3 py-1.5 text-sm text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
               >
                 <ArrowLeft size={14} />
                 修改产品
@@ -135,7 +135,7 @@ export default function PlanSelect() {
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
               {product.core_benefits.map((b, i) => (
-                <span key={i} className="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded">
+                <span key={i} className="px-2 py-1 bg-emerald-50 text-emerald-600 text-xs rounded">
                   {b}
                 </span>
               ))}
@@ -163,7 +163,7 @@ export default function PlanSelect() {
       {/* 加载状态 */}
       {isRecommending && (
         <div className="text-center py-12">
-          <Loader2 size={32} className="animate-spin text-blue-400 mx-auto mb-3" />
+          <Loader2 size={32} className="animate-spin text-emerald-400 mx-auto mb-3" />
           <p className="text-slate-500">{progress || 'AI 正在分析最佳方案...'}</p>
         </div>
       )}
@@ -195,7 +195,7 @@ export default function PlanSelect() {
                 <select
                   value={videoModel}
                   onChange={(e) => setVideoModel(e.target.value as VideoModel)}
-                  className="w-full sm:w-auto bg-white border border-slate-300 text-slate-900 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+                  className="w-full sm:w-auto bg-white border border-slate-300 text-slate-900 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-emerald-500"
                 >
                   {(!!import.meta.env.VITE_API_BASE_URL || !!import.meta.env.VITE_FAL_API_KEY) && (
                     <option value="veo">Veo 3.1（推荐）</option>
@@ -213,7 +213,7 @@ export default function PlanSelect() {
                 <select
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}
-                  className="w-full sm:w-auto bg-white border border-slate-300 text-slate-900 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+                  className="w-full sm:w-auto bg-white border border-slate-300 text-slate-900 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-emerald-500"
                 >
                   <option value="es">Espanol</option>
                   <option value="pt">Portugues</option>
@@ -226,7 +226,7 @@ export default function PlanSelect() {
                 <select
                   value={aspectRatio}
                   onChange={(e) => setAspectRatio(e.target.value as '9:16' | '16:9' | '1:1')}
-                  className="w-full sm:w-auto bg-white border border-slate-300 text-slate-900 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+                  className="w-full sm:w-auto bg-white border border-slate-300 text-slate-900 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-emerald-500"
                 >
                   <option value="9:16">9:16 竖屏</option>
                   <option value="16:9">16:9 横屏</option>
@@ -238,7 +238,7 @@ export default function PlanSelect() {
                 <select
                   value={resolution}
                   onChange={(e) => setResolution(e.target.value as '720p' | '1080p')}
-                  className="w-full sm:w-auto bg-white border border-slate-300 text-slate-900 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+                  className="w-full sm:w-auto bg-white border border-slate-300 text-slate-900 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-emerald-500"
                 >
                   <option value="720p">720p（省钱）</option>
                   <option value="1080p">1080p 高清</option>
@@ -250,12 +250,12 @@ export default function PlanSelect() {
                   onClick={() => setGenerateAudio(!generateAudio)}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm border transition-colors ${
                     generateAudio
-                      ? 'bg-blue-50 border-blue-500 text-blue-600'
+                      ? 'bg-emerald-50 border-emerald-500 text-emerald-600'
                       : 'bg-white border-slate-300 text-slate-400'
                   }`}
                 >
                   <span className={`w-8 h-4 rounded-full relative transition-colors ${
-                    generateAudio ? 'bg-blue-500' : 'bg-slate-300'
+                    generateAudio ? 'bg-emerald-500' : 'bg-slate-300'
                   }`}>
                     <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${
                       generateAudio ? 'left-4' : 'left-0.5'
@@ -282,7 +282,7 @@ export default function PlanSelect() {
               </div>
               <button
                 onClick={handleNext}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors"
               >
                 开始生成
                 <ArrowRight size={18} />
@@ -311,13 +311,13 @@ function TypeCard({
       onClick={onToggle}
       className={`relative p-4 rounded-xl border cursor-pointer transition-all ${
         isSelected
-          ? 'bg-blue-50 border-blue-500'
+          ? 'bg-emerald-50 border-emerald-500'
           : 'bg-white border-slate-200 shadow-sm hover:border-slate-300'
       }`}
     >
       {/* 勾选标记 */}
       <div className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center ${
-        isSelected ? 'bg-blue-600' : 'bg-slate-200'
+        isSelected ? 'bg-emerald-600' : 'bg-slate-200'
       }`}>
         {isSelected && <Check size={14} className="text-white" />}
       </div>

@@ -12,7 +12,7 @@ const sizeMap = {
 export function Spinner({ size = 'md', className = '' }: SpinnerProps) {
   return (
     <div
-      className={`${sizeMap[size]} border-slate-200 border-t-blue-500 rounded-full animate-spin ${className}`}
+      className={`${sizeMap[size]} border-slate-200 border-t-emerald-500 rounded-full animate-spin ${className}`}
     />
   );
 }

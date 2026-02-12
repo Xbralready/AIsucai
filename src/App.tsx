@@ -24,7 +24,7 @@ function App() {
         <div className="max-w-5xl mx-auto px-3 py-3 sm:px-6 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Ad<span className="text-blue-600">Blitz</span>
+              QI<span className="text-emerald-600">FU</span>
             </h1>
             <span className="text-xs text-slate-400 hidden sm:inline">AI Video Ad Generator</span>
           </div>
@@ -49,7 +49,7 @@ function App() {
 
       {/* Footer */}
       <footer className="border-t border-slate-200 py-4 text-center text-xs text-slate-400">
-        AdBlitz - AI-Powered Batch Video Ad Generator
+        QIFU - AI-Powered Batch Video Ad Generator
       </footer>
     </div>
   );

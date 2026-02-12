@@ -105,8 +105,9 @@ export default function ProductInput() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-10">
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-3">输入产品信息</h1>
-        <p className="text-slate-500">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-2">奇富AI视频生产平台</h1>
+        <p className="text-base text-slate-500 mb-6">输入产品信息</p>
+        <p className="text-sm text-slate-400">
           粘贴产品链接、手动填写或上传产品图片，AI 将自动分析
         </p>
       </div>
@@ -117,7 +118,7 @@ export default function ProductInput() {
           onClick={() => setMode('url')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             mode === 'url'
-              ? 'bg-blue-600 text-white'
+              ? 'bg-emerald-600 text-white'
               : 'bg-slate-100 text-slate-500 hover:text-slate-900'
           }`}
         >
@@ -128,7 +129,7 @@ export default function ProductInput() {
           onClick={() => setMode('manual')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             mode === 'manual'
-              ? 'bg-blue-600 text-white'
+              ? 'bg-emerald-600 text-white'
               : 'bg-slate-100 text-slate-500 hover:text-slate-900'
           }`}
         >
@@ -149,7 +150,7 @@ export default function ProductInput() {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://example.com/product/..."
-              className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500"
               disabled={isAnalyzing}
             />
             <p className="mt-2 text-xs text-slate-400">
@@ -178,7 +179,7 @@ export default function ProductInput() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="如：Nike Air Jordan 1 Low 男子运动鞋"
-                className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500"
                 disabled={isAnalyzing}
               />
             </div>
@@ -208,7 +209,7 @@ export default function ProductInput() {
             className={`w-full px-4 py-3 bg-white rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none resize-none ${
               mode === 'url' && isCnEcom && !description.trim() && imageDataUrls.length === 0
                 ? 'border-2 border-amber-400 focus:border-amber-500'
-                : 'border border-slate-300 focus:border-blue-500'
+                : 'border border-slate-300 focus:border-emerald-500'
             }`}
             disabled={isAnalyzing}
           />
@@ -285,7 +286,7 @@ export default function ProductInput() {
         <button
           onClick={handleAnalyze}
           disabled={isAnalyzing}
-          className="flex items-center gap-2 px-8 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+          className="flex items-center gap-2 px-8 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
         >
           {isAnalyzing ? (
             <>

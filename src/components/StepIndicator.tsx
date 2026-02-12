@@ -25,13 +25,13 @@ export function StepIndicator({ current }: StepIndicatorProps) {
         return (
           <div key={step.key} className="flex items-center gap-1 sm:gap-2">
             {i > 0 && (
-              <div className={`w-6 sm:w-12 h-0.5 ${isDone ? 'bg-blue-500' : 'bg-slate-200'}`} />
+              <div className={`w-6 sm:w-12 h-0.5 ${isDone ? 'bg-emerald-500' : 'bg-slate-200'}`} />
             )}
             <div className={`flex items-center gap-1.5 px-2 py-1 sm:gap-2 sm:px-3 sm:py-1.5 rounded-lg text-sm ${
               isActive
-                ? 'bg-blue-50 text-blue-600 font-medium'
+                ? 'bg-emerald-50 text-emerald-600 font-medium'
                 : isDone
-                  ? 'text-blue-600'
+                  ? 'text-emerald-600'
                   : 'text-slate-400'
             }`}>
               <Icon size={16} />

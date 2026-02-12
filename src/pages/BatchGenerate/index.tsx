@@ -100,7 +100,7 @@ export default function BatchGenerate() {
     return (
       <div className="text-center py-20">
         <p className="text-slate-500">请先完成产品分析和方案选择</p>
-        <button onClick={() => setStep('input')} className="mt-4 text-blue-600 hover:text-blue-500">
+        <button onClick={() => setStep('input')} className="mt-4 text-emerald-600 hover:text-emerald-500">
           返回首页
         </button>
       </div>
@@ -131,7 +131,7 @@ export default function BatchGenerate() {
       {/* 脚本生成中 */}
       {isGeneratingScripts && (
         <div className="text-center py-16">
-          <Loader2 size={40} className="animate-spin text-blue-400 mx-auto mb-4" />
+          <Loader2 size={40} className="animate-spin text-emerald-400 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-slate-900 mb-2">正在生成脚本</h2>
           <p className="text-slate-500">{scriptProgress || '请稍候...'}</p>
         </div>
@@ -188,7 +188,7 @@ export default function BatchGenerate() {
             <div
               className={`h-full rounded-full transition-all duration-500 ${
                 batchJob.status === 'completed' ? 'bg-emerald-500' :
-                batchJob.status === 'failed' ? 'bg-red-500' : 'bg-blue-500'
+                batchJob.status === 'failed' ? 'bg-red-500' : 'bg-emerald-500'
               }`}
               style={{ width: `${batchJob.progress}%` }}
             />
@@ -236,7 +236,7 @@ function ScriptCard({
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded shrink-0">
+            <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-xs rounded shrink-0">
               {script.typeName}
             </span>
             <span className="text-sm text-slate-900 font-medium truncate">{script.title}</span>
@@ -305,7 +305,7 @@ function ScriptCard({
                     rows={key === 'veoPrompt' || key === 'fullScript' ? 5 : 3}
                     className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2
                                text-sm text-slate-700 placeholder-slate-400
-                               focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30
+                               focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30
                                resize-y font-mono leading-relaxed"
                   />
                 ) : (
@@ -356,7 +356,7 @@ function TaskCard({ task }: { task: VideoTask }) {
   const statusIcon = {
     pending: <Clock size={16} className="text-slate-400" />,
     queued: <Loader2 size={16} className="text-yellow-500 animate-spin" />,
-    generating: <Loader2 size={16} className="text-blue-500 animate-spin" />,
+    generating: <Loader2 size={16} className="text-emerald-500 animate-spin" />,
     completed: <CheckCircle size={16} className="text-emerald-500" />,
     failed: <XCircle size={16} className="text-red-500" />,
   };
@@ -395,7 +395,7 @@ function TaskCard({ task }: { task: VideoTask }) {
               <button
                 onClick={(e) => { e.stopPropagation(); onDownload(); }}
                 disabled={downloading}
-                className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors disabled:opacity-50"
+                className="flex items-center gap-1 px-2 py-1 text-xs text-emerald-600 hover:text-emerald-500 hover:bg-emerald-50 rounded transition-colors disabled:opacity-50"
               >
                 {downloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
                 {downloading ? '下载中...' : '下载'}
