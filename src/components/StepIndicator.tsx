@@ -1,18 +1,28 @@
-import { Package, Sparkles, Clapperboard } from 'lucide-react';
+import { Package, Sparkles, Clapperboard, Video, FileCheck } from 'lucide-react';
+import type { CloneStep } from '../store/useAppStore';
 
-type Step = 'input' | 'plan' | 'generate';
+type CreateStep = 'input' | 'plan' | 'generate';
 
-const steps = [
-  { key: 'input' as Step, label: '输入商品', icon: Package },
-  { key: 'plan' as Step, label: '选择方案', icon: Sparkles },
-  { key: 'generate' as Step, label: '批量生成', icon: Clapperboard },
+const createSteps = [
+  { key: 'input' as CreateStep, label: '输入商品', icon: Package },
+  { key: 'plan' as CreateStep, label: '选择方案', icon: Sparkles },
+  { key: 'generate' as CreateStep, label: '批量生成', icon: Clapperboard },
+];
+
+const cloneSteps = [
+  { key: 'input' as CloneStep, label: '输入素材', icon: Video },
+  { key: 'result' as CloneStep, label: '复刻结果', icon: FileCheck },
 ];
 
 interface StepIndicatorProps {
-  current: Step;
+  mode: 'create' | 'clone';
+  currentCreate?: CreateStep;
+  currentClone?: CloneStep;
 }
 
-export function StepIndicator({ current }: StepIndicatorProps) {
+export function StepIndicator({ mode, currentCreate, currentClone }: StepIndicatorProps) {
+  const steps = mode === 'create' ? createSteps : cloneSteps;
+  const current = mode === 'create' ? currentCreate : currentClone;
   const currentIndex = steps.findIndex(s => s.key === current);
 
   return (

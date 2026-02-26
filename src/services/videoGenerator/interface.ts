@@ -32,4 +32,6 @@ export interface VideoGeneratorBackend {
     jobId: string,
     onProgress?: (status: VideoJobStatus) => void
   ): Promise<VideoJobStatus>;
+  /** Remix 续接（Sora 2 专用，可选） */
+  remixVideo?(sourceVideoId: string, prompt: string): Promise<VideoJobStatus>;
 }

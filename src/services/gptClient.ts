@@ -260,7 +260,21 @@ function extractProductImages(html: string, baseUrl: string): string[] {
         lower.includes('1x1') || lower.includes('blank') ||
         lower.includes('spacer') || lower.includes('placeholder') ||
         lower.includes('avatar') || lower.includes('flag') ||
+        lower.includes('beacon') || lower.includes('analytics') ||
+        lower.includes('adsystem') || lower.includes('doubleclick') ||
+        lower.includes('facebook.com/tr') || lower.includes('google-analytics') ||
         lower.startsWith('data:')) continue;
+
+    // 过滤掉常见跟踪 / 广告域名
+    try {
+      const host = new URL(src).hostname;
+      if (host.includes('fls-na.amazon') || host.includes('fls-eu.amazon') ||
+          host.includes('amazon-adsystem') || host.includes('assoc-amazon') ||
+          host.includes('googleadservices') || host.includes('googlesyndication') ||
+          host.includes('doubleclick.net') || host.includes('facebook.net') ||
+          host.includes('analytics') || host.includes('tagging') ||
+          host.includes('criteo') || host.includes('bing.com/action')) continue;
+    } catch { /* invalid URL, will be caught below */ }
 
     // 只要 http/https 图片
     if (src.startsWith('http')) addImage(src);
