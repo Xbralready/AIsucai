@@ -4,6 +4,8 @@ import { useAppStore } from '../../store/useAppStore';
 import { useToast } from '../../components/common/useToast';
 import { recommendVideoTypes } from '../../services/typeRecommender';
 import type { TypeRecommendation, VideoModel } from '../../types/recommendation';
+import { VIDEO_STYLES } from '../../data/videoStyles';
+import type { VideoStyleKey } from '../../data/videoStyles';
 
 export default function PlanSelect() {
   const {
@@ -19,6 +21,7 @@ export default function PlanSelect() {
   const [videoModel, setVideoModel] = useState<VideoModel>('veo');
   const [generateAudio, setGenerateAudio] = useState(false);
   const [resolution, setResolution] = useState<'720p' | '1080p'>('720p');
+  const [style, setStyle] = useState<VideoStyleKey>('auto');
   const [progress, setProgress] = useState('');
 
   // 如果没有推荐数据，自动获取
@@ -79,6 +82,7 @@ export default function PlanSelect() {
       videoModel,
       generateAudio,
       resolution,
+      style,
       totalEstimatedCost: totalCost,
       totalVideoCount: totalCount,
     });
@@ -101,7 +105,7 @@ export default function PlanSelect() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div>
       {/* 产品摘要 */}
       <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm mb-6">
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
@@ -245,6 +249,21 @@ export default function PlanSelect() {
                 </select>
               </div>
               <div>
+                <label className="block text-xs text-slate-400 mb-1">视频风格</label>
+                <select
+                  value={style}
+                  onChange={(e) => setStyle(e.target.value as VideoStyleKey)}
+                  className="w-full sm:w-auto bg-white border border-slate-300 text-slate-900 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-emerald-500"
+                >
+                  {VIDEO_STYLES.map(s => (
+                    <option key={s.value} value={s.value}>{s.labelZh}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-slate-400 mt-1">
+                  {VIDEO_STYLES.find(s => s.value === style)?.description}
+                </p>
+              </div>
+              <div>
                 <label className="block text-xs text-slate-400 mb-1">AI 音频</label>
                 <button
                   onClick={() => setGenerateAudio(!generateAudio)}
@@ -274,8 +293,8 @@ export default function PlanSelect() {
           <div className="h-20" />
 
           {/* 汇总 & 下一步（吸底） */}
-          <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/90 backdrop-blur-sm border-t border-slate-200">
-            <div className="max-w-4xl mx-auto px-4 py-3 sm:px-6 flex items-center justify-between">
+          <div className="fixed bottom-0 left-0 right-0 lg:left-60 z-30 bg-white/90 backdrop-blur-sm border-t border-slate-200">
+            <div className="px-4 py-3 sm:px-6 lg:px-10 flex items-center justify-between">
               <div className="text-sm text-slate-500">
                 已选 {selected.size} 种类型，
                 预计 {recommendations.filter(r => selected.has(r.typeId)).reduce((s, r) => s + r.suggestedCount, 0)} 条视频

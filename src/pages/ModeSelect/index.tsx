@@ -8,8 +8,8 @@ export default function ModeSelect() {
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8">
       {/* Hero */}
       <div className="text-center space-y-3">
-        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">
-          QI<span className="text-emerald-600">FU</span> AI
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
+          欢迎使用 QI<span className="text-emerald-600">FU</span> AI
         </h2>
         <p className="text-slate-500 text-sm sm:text-base max-w-md mx-auto">
           AI 驱动的批量视频广告生成平台，从零创建或一键复刻爆款
@@ -17,7 +17,7 @@ export default function ModeSelect() {
       </div>
 
       {/* Mode Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-2xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-3xl">
         {/* Create from scratch */}
         <button
           onClick={() => setAppMode('create')}

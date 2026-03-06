@@ -1,4 +1,5 @@
 import type { ProductionFormat } from './videoType';
+import type { VideoStyleKey } from '../data/videoStyles';
 
 /** AI 推荐的视频类型方案 */
 export interface TypeRecommendation {
@@ -25,6 +26,7 @@ export interface GenerationPlan {
   videoModel: VideoModel;            // 用户选择的视频生成模型
   generateAudio: boolean;            // 是否生成音频（关闭可省 33% Veo 成本）
   resolution: '720p' | '1080p';      // 视频分辨率
+  style: VideoStyleKey;              // 视频风格
   totalEstimatedCost: number;
   totalVideoCount: number;
 }

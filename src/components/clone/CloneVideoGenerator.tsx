@@ -1,78 +1,84 @@
 import { useState } from 'react';
 import { useAppStore } from '../../store/useAppStore';
-import { SoraBackend } from '../../services/videoGenerator/sora';
+import { getBackend } from '../../services/videoGenerator';
 import { Play, Download, Loader2 } from 'lucide-react';
 import type { VideoJobStatus } from '../../services/videoGenerator/interface';
+import type { CompiledWorldPrompt } from '../../services/soraPromptCompiler';
 
-const sora = new SoraBackend();
+interface CloneVideoGeneratorProps {
+  variationIndex?: number;
+  compiledWorlds?: CompiledWorldPrompt[];
+}
 
-export function CloneVideoGenerator() {
+export function CloneVideoGenerator({ variationIndex = 0, compiledWorlds: propWorlds }: CloneVideoGeneratorProps) {
   const {
-    compiledWorlds,
-    cloneGeneratedVideos,
-    setCloneGeneratedVideos,
-    updateCloneGeneratedVideo,
+    compiledWorlds: storeWorlds,
+    cloneBatchVideos,
+    setCloneBatchVideos,
+    updateCloneBatchVideo,
+    cloneAspectRatio,
+    cloneVideoModel,
   } = useAppStore();
 
   const [isGenerating, setIsGenerating] = useState(false);
 
+  const worlds = propWorlds || storeWorlds;
+  const currentVideos = cloneBatchVideos[variationIndex] || [];
+
   const handleGenerate = async () => {
-    if (compiledWorlds.length === 0) return;
+    if (worlds.length === 0) return;
     setIsGenerating(true);
 
-    // Initialize video slots
-    const initialVideos = compiledWorlds.map((_, i) => ({
+    // Initialize video slots for this variation
+    const initialVideos = worlds.map((_, i) => ({
       worldIndex: i,
       jobId: '',
       status: { id: '', status: 'queued' as const, progress: 0 },
     }));
-    setCloneGeneratedVideos(initialVideos);
+    setCloneBatchVideos(variationIndex, initialVideos);
 
+    const backend = getBackend(cloneVideoModel);
     let previousVideoId: string | null = null;
 
-    for (let i = 0; i < compiledWorlds.length; i++) {
-      const world = compiledWorlds[i];
+    for (let i = 0; i < worlds.length; i++) {
+      const world = worlds[i];
 
       try {
         let jobStatus: VideoJobStatus;
 
         if (i === 0 || !previousVideoId) {
-          // First world: generate from scratch
-          jobStatus = await sora.generateVideo({
+          jobStatus = await backend.generateVideo({
             prompt: world.compiledPrompt,
             duration: world.suggestedDuration,
-            aspectRatio: '9:16',
+            aspectRatio: cloneAspectRatio,
           });
         } else {
-          // Subsequent worlds: remix from previous
-          if (sora.remixVideo) {
-            jobStatus = await sora.remixVideo(previousVideoId, world.compiledPrompt);
+          if (backend.remixVideo) {
+            jobStatus = await backend.remixVideo(previousVideoId, world.compiledPrompt);
           } else {
-            // Fallback: generate independently
-            jobStatus = await sora.generateVideo({
+            jobStatus = await backend.generateVideo({
               prompt: world.compiledPrompt,
               duration: world.suggestedDuration,
-              aspectRatio: '9:16',
+              aspectRatio: cloneAspectRatio,
             });
           }
         }
 
-        updateCloneGeneratedVideo(i, { jobId: jobStatus.id, status: jobStatus });
+        updateCloneBatchVideo(variationIndex, i, { jobId: jobStatus.id, status: jobStatus });
 
-        // Poll for completion
-        const finalStatus = await sora.waitForCompletion(
+        const finalStatus = await backend.waitForCompletion(
           jobStatus.id,
-          (status) => updateCloneGeneratedVideo(i, { status })
+          (status) => updateCloneBatchVideo(variationIndex, i, { status })
         );
 
-        updateCloneGeneratedVideo(i, { status: finalStatus });
+        updateCloneBatchVideo(variationIndex, i, { status: finalStatus });
         previousVideoId = finalStatus.id;
       } catch (error) {
         const errMsg = error instanceof Error ? error.message : '生成失败';
-        updateCloneGeneratedVideo(i, {
+        updateCloneBatchVideo(variationIndex, i, {
           status: { id: '', status: 'failed', progress: 0, error: errMsg },
         });
-        break; // Stop chain on failure
+        break;
       }
     }
 
@@ -83,13 +89,13 @@ export function CloneVideoGenerator() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-semibold text-slate-900">
-          视频生成 ({compiledWorlds.length} 段)
+          视频生成 ({worlds.length} 段)
         </h4>
         <button
           onClick={handleGenerate}
-          disabled={isGenerating || compiledWorlds.length === 0}
+          disabled={isGenerating || worlds.length === 0}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            isGenerating || compiledWorlds.length === 0
+            isGenerating || worlds.length === 0
               ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
               : 'bg-emerald-600 hover:bg-emerald-700 text-white'
           }`}
@@ -109,15 +115,15 @@ export function CloneVideoGenerator() {
       </div>
 
       {/* Video grid */}
-      {cloneGeneratedVideos.length > 0 && (
+      {currentVideos.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {cloneGeneratedVideos.map((video) => (
+          {currentVideos.map((video) => (
             <div
               key={video.worldIndex}
               className="bg-slate-50 rounded-lg border border-slate-200 overflow-hidden"
             >
               {/* Video preview or placeholder */}
-              <div className="aspect-[9/16] max-h-[300px] bg-slate-900 flex items-center justify-center relative">
+              <div className={`${cloneAspectRatio === '16:9' ? 'aspect-video' : 'aspect-[9/16]'} max-h-[300px] bg-slate-900 flex items-center justify-center relative`}>
                 {video.status.status === 'completed' && video.status.videoUrl ? (
                   <video
                     src={video.status.videoUrl}
@@ -144,12 +150,12 @@ export function CloneVideoGenerator() {
               <div className="px-3 py-2 flex items-center justify-between">
                 <span className="text-xs text-slate-500">
                   World {video.worldIndex + 1}
-                  {compiledWorlds[video.worldIndex]?.isRemix ? ' (Remix)' : ' (First)'}
+                  {worlds[video.worldIndex]?.isRemix ? ' (Remix)' : ' (First)'}
                 </span>
                 {video.status.status === 'completed' && video.status.videoUrl && (
                   <a
                     href={video.status.videoUrl}
-                    download={`clone-world-${video.worldIndex + 1}.mp4`}
+                    download={`clone-v${variationIndex + 1}-world-${video.worldIndex + 1}.mp4`}
                     className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700"
                   >
                     <Download size={12} />
@@ -163,9 +169,9 @@ export function CloneVideoGenerator() {
       )}
 
       {/* Compiled prompts preview */}
-      {compiledWorlds.length > 0 && cloneGeneratedVideos.length === 0 && (
+      {worlds.length > 0 && currentVideos.length === 0 && (
         <div className="space-y-2">
-          {compiledWorlds.map((world, i) => (
+          {worlds.map((world, i) => (
             <div key={i} className="bg-slate-50 rounded-lg p-3 border border-slate-100">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-xs font-medium text-slate-600">

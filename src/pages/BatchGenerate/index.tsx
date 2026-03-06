@@ -37,7 +37,7 @@ export default function BatchGenerate() {
       const result = await generateAllScripts(
         product,
         plan.recommendations,
-        { language: plan.language, countPerType: 2, videoModel: plan.videoModel },
+        { language: plan.language, countPerType: 2, videoModel: plan.videoModel, style: plan.style },
         setScriptProgress
       );
       setScripts(result);
@@ -108,7 +108,7 @@ export default function BatchGenerate() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div>
       {/* 顶部导航 */}
       <div className="flex items-center justify-between mb-6">
         <button
@@ -157,8 +157,8 @@ export default function BatchGenerate() {
           <div className="h-20" />
 
           {/* 开始生成视频（吸底） */}
-          <div className="fixed bottom-0 left-0 right-0 z-30 bg-white/90 backdrop-blur-sm border-t border-slate-200">
-            <div className="max-w-4xl mx-auto px-4 py-3 sm:px-6 flex justify-center">
+          <div className="fixed bottom-0 left-0 right-0 lg:left-60 z-30 bg-white/90 backdrop-blur-sm border-t border-slate-200">
+            <div className="px-4 py-3 sm:px-6 lg:px-10 flex justify-center">
               <button
                 onClick={handleStartGeneration}
                 className="flex items-center gap-2 px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors"

@@ -3,8 +3,10 @@ import { useAppStore } from '../../store/useAppStore';
 import { runClonePipeline } from '../../services/clonePipeline';
 import { extractProductPreview } from '../../services/cloneProductMapping';
 import { ProductInfoPreview } from '../../components/clone/ProductInfoPreview';
-import { Upload, Link, Globe, Loader2, Play, Search } from 'lucide-react';
+import { Upload, Link, Globe, Loader2, Play, Search, Smartphone, Monitor } from 'lucide-react';
 import type { ProductInfoDraft } from '../../types/cloneProductMapping';
+import { VIDEO_STYLES } from '../../data/videoStyles';
+import type { VideoStyleKey } from '../../data/videoStyles';
 
 type VideoInputMode = 'file' | 'url';
 type ProductInputMode = 'url' | 'manual';
@@ -114,6 +116,10 @@ export default function CloneInput() {
       store.setCloneScript(script);
       store.setCompiledWorlds(worlds);
     },
+    onBatchScriptsComplete: (variations: import('../../services/clonePipeline').CloneScriptVariation[]) => {
+      store.setCloneScriptVariations(variations);
+      store.setActiveVariationIndex(0);
+    },
     onError: (err: string) => store.setClonePipelineError(err),
   };
 
@@ -133,6 +139,10 @@ export default function CloneInput() {
         productUrl: store.cloneProductUrl || undefined,
         productDescription: store.cloneProductDescription || undefined,
         language: store.cloneLanguage,
+        duration: store.cloneDuration,
+        aspectRatio: store.cloneAspectRatio,
+        style: store.cloneStyle,
+        batchCount: store.cloneBatchCount,
       },
       pipelineCallbacks
     );
@@ -148,6 +158,7 @@ export default function CloneInput() {
       {
         videoSource: 'demo',
         mock: true,
+        batchCount: store.cloneBatchCount,
       },
       pipelineCallbacks
     );
@@ -332,18 +343,102 @@ export default function CloneInput() {
           />
         )}
 
-        {/* Language selector */}
-        <div className="mt-4 flex items-center gap-3">
-          <label className="text-xs text-slate-500">脚本语言</label>
-          <select
-            value={store.cloneLanguage}
-            onChange={(e) => store.setCloneLanguage(e.target.value)}
-            className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          >
-            {LANGUAGES.map(lang => (
-              <option key={lang.code} value={lang.code}>{lang.label}</option>
-            ))}
-          </select>
+        {/* Video params */}
+        <div className="mt-4 space-y-3">
+          {/* Row 1: Model + Language + Duration + Style */}
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-slate-500 whitespace-nowrap">视频模型</label>
+              <select
+                value={store.cloneVideoModel}
+                onChange={(e) => store.setCloneVideoModel(e.target.value as 'veo' | 'sora')}
+                className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                {(!!import.meta.env.VITE_API_BASE_URL || !!import.meta.env.VITE_FAL_API_KEY) && (
+                  <option value="veo">Veo 3.1（推荐，快）</option>
+                )}
+                {(!!import.meta.env.VITE_API_BASE_URL || !!import.meta.env.VITE_FAL_API_KEY) && (
+                  <option value="sora">Sora 2（慢，支持 Remix）</option>
+                )}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-slate-500 whitespace-nowrap">脚本语言</label>
+              <select
+                value={store.cloneLanguage}
+                onChange={(e) => store.setCloneLanguage(e.target.value)}
+                className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                {LANGUAGES.map(lang => (
+                  <option key={lang.code} value={lang.code}>{lang.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-slate-500 whitespace-nowrap">视频时长</label>
+              <select
+                value={store.cloneDuration}
+                onChange={(e) => store.setCloneDuration(Number(e.target.value))}
+                className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                {[4, 8, 12, 16, 24].map(s => (
+                  <option key={s} value={s}>{s}s</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-slate-500 whitespace-nowrap">风格</label>
+              <select
+                value={store.cloneStyle}
+                onChange={(e) => store.setCloneStyle(e.target.value as VideoStyleKey)}
+                className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                {VIDEO_STYLES.map(s => (
+                  <option key={s.value} value={s.value}>{s.labelZh}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-slate-500 whitespace-nowrap">生成数量</label>
+              <select
+                value={store.cloneBatchCount}
+                onChange={(e) => store.setCloneBatchCount(Number(e.target.value))}
+                className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                {[1, 3, 5, 10].map(n => (
+                  <option key={n} value={n}>{n} 套脚本</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Row 2: Aspect ratio toggle */}
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-slate-500 whitespace-nowrap">画面比例</label>
+            <div className="flex rounded-lg border border-slate-200 overflow-hidden">
+              {([
+                { value: '9:16' as const, icon: Smartphone, desc: '竖屏 9:16' },
+                { value: '16:9' as const, icon: Monitor, desc: '横屏 16:9' },
+              ]).map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => store.setCloneAspectRatio(opt.value)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors ${
+                    store.cloneAspectRatio === opt.value
+                      ? 'bg-emerald-50 text-emerald-600 font-medium'
+                      : 'text-slate-500 hover:bg-slate-50'
+                  }`}
+                >
+                  <opt.icon size={12} />
+                  {opt.desc}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 

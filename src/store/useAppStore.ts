@@ -10,6 +10,8 @@ import type { CompiledWorldPrompt } from '../services/soraPromptCompiler';
 import type { ProductImage, SceneImageBinding } from '../types/productImage';
 import type { ClonePipelinePhase } from '../services/clonePipeline';
 import type { VideoJobStatus } from '../services/videoGenerator/interface';
+import type { VideoStyleKey } from '../data/videoStyles';
+import type { VideoModel } from '../types/recommendation';
 
 // ── App Mode ──
 export type AppMode = 'home' | 'create' | 'clone';
@@ -25,6 +27,13 @@ export interface InputDraft {
   imageDataUrls: string[];
 }
 
+// ── Clone 脚本变体 ──
+export interface CloneScriptVariation {
+  label: string;
+  script: CloneVideoScript;
+  compiledWorlds: CompiledWorldPrompt[];
+}
+
 // ── Clone 生成的视频状态 ──
 export interface CloneGeneratedVideo {
   worldIndex: number;
@@ -36,6 +45,11 @@ interface AppState {
   // ── App Mode ──
   appMode: AppMode;
   setAppMode: (mode: AppMode) => void;
+
+  // ── Sidebar ──
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+  toggleSidebar: () => void;
 
   // ── Create Mode (existing) ──
   currentStep: Step;
@@ -76,6 +90,14 @@ interface AppState {
   setCloneProductDescription: (desc: string) => void;
   cloneLanguage: string;
   setCloneLanguage: (lang: string) => void;
+  cloneDuration: number;
+  setCloneDuration: (d: number) => void;
+  cloneAspectRatio: '9:16' | '16:9';
+  setCloneAspectRatio: (r: '9:16' | '16:9') => void;
+  cloneStyle: VideoStyleKey;
+  setCloneStyle: (s: VideoStyleKey) => void;
+  cloneVideoModel: VideoModel;
+  setCloneVideoModel: (m: VideoModel) => void;
   cloneProductImages: ProductImage[];
   setCloneProductImages: (images: ProductImage[]) => void;
   cloneExtractionDone: boolean;
@@ -109,10 +131,21 @@ interface AppState {
   clonePipelineError: string;
   setClonePipelineError: (err: string) => void;
 
-  // Clone video generation
+  // Clone batch variations
+  cloneBatchCount: number;
+  setCloneBatchCount: (count: number) => void;
+  cloneScriptVariations: CloneScriptVariation[];
+  setCloneScriptVariations: (variations: CloneScriptVariation[]) => void;
+  activeVariationIndex: number;
+  setActiveVariationIndex: (index: number) => void;
+
+  // Clone video generation (per-variation)
   cloneGeneratedVideos: CloneGeneratedVideo[];
   setCloneGeneratedVideos: (videos: CloneGeneratedVideo[]) => void;
   updateCloneGeneratedVideo: (worldIndex: number, patch: Partial<CloneGeneratedVideo>) => void;
+  cloneBatchVideos: Record<number, CloneGeneratedVideo[]>;
+  setCloneBatchVideos: (variationIndex: number, videos: CloneGeneratedVideo[]) => void;
+  updateCloneBatchVideo: (variationIndex: number, worldIndex: number, patch: Partial<CloneGeneratedVideo>) => void;
 
   // Clone accordion state
   accordionState: { analysis: boolean; mapping: boolean; script: boolean };
@@ -143,6 +176,10 @@ const cloneInitialState = {
   cloneProductUrl: '',
   cloneProductDescription: '',
   cloneLanguage: 'es',
+  cloneDuration: 12,
+  cloneAspectRatio: '9:16' as const,
+  cloneStyle: 'auto' as VideoStyleKey,
+  cloneVideoModel: 'veo' as VideoModel,
   cloneProductImages: [] as ProductImage[],
   cloneExtractionDone: false,
   cloneExtracting: false,
@@ -157,14 +194,23 @@ const cloneInitialState = {
   clonePipelinePhase: 'idle' as ClonePipelinePhase,
   clonePipelineProgress: '',
   clonePipelineError: '',
+  cloneBatchCount: 1,
+  cloneScriptVariations: [] as CloneScriptVariation[],
+  activeVariationIndex: 0,
   cloneGeneratedVideos: [] as CloneGeneratedVideo[],
+  cloneBatchVideos: {} as Record<number, CloneGeneratedVideo[]>,
   accordionState: { analysis: false, mapping: false, script: true },
 };
 
 export const useAppStore = create<AppState>((set) => ({
   // ── App Mode ──
   appMode: 'home',
-  setAppMode: (appMode) => set({ appMode }),
+  setAppMode: (appMode) => set({ appMode, sidebarOpen: false }),
+
+  // ── Sidebar ──
+  sidebarOpen: false,
+  setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
+  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
 
   // ── Create Mode (existing) ──
   ...createInitialState,
@@ -195,6 +241,10 @@ export const useAppStore = create<AppState>((set) => ({
   setCloneProductUrl: (cloneProductUrl) => set({ cloneProductUrl }),
   setCloneProductDescription: (cloneProductDescription) => set({ cloneProductDescription }),
   setCloneLanguage: (cloneLanguage) => set({ cloneLanguage }),
+  setCloneDuration: (cloneDuration) => set({ cloneDuration }),
+  setCloneAspectRatio: (cloneAspectRatio) => set({ cloneAspectRatio }),
+  setCloneStyle: (cloneStyle) => set({ cloneStyle }),
+  setCloneVideoModel: (cloneVideoModel) => set({ cloneVideoModel }),
   setCloneProductImages: (cloneProductImages) => set({ cloneProductImages }),
   setCloneExtractionDone: (cloneExtractionDone) => set({ cloneExtractionDone }),
   setCloneExtracting: (cloneExtracting) => set({ cloneExtracting }),
@@ -212,11 +262,26 @@ export const useAppStore = create<AppState>((set) => ({
   setClonePipelineProgress: (clonePipelineProgress) => set({ clonePipelineProgress }),
   setClonePipelineError: (clonePipelineError) => set({ clonePipelineError }),
 
+  setCloneBatchCount: (cloneBatchCount) => set({ cloneBatchCount }),
+  setCloneScriptVariations: (cloneScriptVariations) => set({ cloneScriptVariations }),
+  setActiveVariationIndex: (activeVariationIndex) => set({ activeVariationIndex }),
+
   setCloneGeneratedVideos: (cloneGeneratedVideos) => set({ cloneGeneratedVideos }),
   updateCloneGeneratedVideo: (worldIndex, patch) => set((state) => ({
     cloneGeneratedVideos: state.cloneGeneratedVideos.map(v =>
       v.worldIndex === worldIndex ? { ...v, ...patch } : v
     ),
+  })),
+  setCloneBatchVideos: (variationIndex, videos) => set((state) => ({
+    cloneBatchVideos: { ...state.cloneBatchVideos, [variationIndex]: videos },
+  })),
+  updateCloneBatchVideo: (variationIndex, worldIndex, patch) => set((state) => ({
+    cloneBatchVideos: {
+      ...state.cloneBatchVideos,
+      [variationIndex]: (state.cloneBatchVideos[variationIndex] || []).map(v =>
+        v.worldIndex === worldIndex ? { ...v, ...patch } : v
+      ),
+    },
   })),
 
   toggleAccordion: (key) => set((state) => ({

@@ -9,6 +9,8 @@ import type { TypeRecommendation, VideoModel } from '../types/recommendation';
 import type { VideoScript } from '../types/script';
 import { VIDEO_CREATIVE_TYPES } from '../data/videoTypes';
 import { callGPT } from './gptClient';
+import { getStyleByKey } from '../data/videoStyles';
+import type { VideoStyleKey } from '../data/videoStyles';
 
 const LANGUAGE_LABELS: Record<string, string> = {
   zh: '中文',
@@ -130,6 +132,7 @@ export async function generateScriptsForType(
     language: string;
     count: number;
     videoModel: VideoModel;
+    style?: VideoStyleKey;
   },
   onProgress?: (msg: string) => void
 ): Promise<VideoScript[]> {
@@ -146,7 +149,11 @@ export async function generateScriptsForType(
   // 有产品图时走 image-to-video，需要用 veoPrompt 的 Voiceover 格式才能产生语音
   const useVeoLipsync = options.videoModel === 'veo' && (isTalkingHead || !!hasProductImage);
 
+  const styleOption = getStyleByKey(options.style || 'auto');
+
   const systemPrompt = `你是一个短视频营销脚本专家。根据产品信息和指定的视频创意类型，生成高转化率的营销脚本。
+
+${styleOption.promptDirective}
 
 视频类型：${recommendation.typeName} (${recommendation.typeNameZh})
 类型说明：${typeData?.description || recommendation.typeName}
@@ -291,6 +298,7 @@ export async function generateAllScripts(
     language: string;
     countPerType: number;
     videoModel: VideoModel;
+    style?: VideoStyleKey;
   },
   onProgress?: (msg: string) => void
 ): Promise<VideoScript[]> {
@@ -300,7 +308,7 @@ export async function generateAllScripts(
     const scripts = await generateScriptsForType(
       product,
       rec,
-      { language: options.language, count: options.countPerType, videoModel: options.videoModel },
+      { language: options.language, count: options.countPerType, videoModel: options.videoModel, style: options.style },
       onProgress
     );
     allScripts.push(...scripts);

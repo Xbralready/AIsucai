@@ -59,4 +59,5 @@ export interface ProductInfoDraft {
   differentiators: string[];
   risk_sensitive: boolean;
   additional_notes?: string;
+  image_urls?: string[];
 }

@@ -206,7 +206,7 @@ export function ProductInfoPreview({
             {productImages.map(img => (
               <div key={img.id} className="relative group w-16 h-16 rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
                 <img
-                  src={img.previewUrl}
+                  src={img.sourceUrl ? proxyImageUrl(img.previewUrl) : img.previewUrl}
                   alt=""
                   className="w-full h-full object-cover"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
@@ -258,6 +258,11 @@ function Field({ label, required, children }: { label: string; required?: boolea
   );
 }
 
+/** 通过 wsrv.nl 代理图片，绕过防盗链 */
+function proxyImageUrl(url: string): string {
+  return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=200&h=200&fit=cover&output=webp`;
+}
+
 /** Web image thumbnail with error handling — hides broken images */
 function WebImageThumb({
   url,
@@ -282,11 +287,9 @@ function WebImageThumb({
       }`}
     >
       <img
-        src={url}
+        src={proxyImageUrl(url)}
         alt=""
         className="w-full h-full object-cover"
-        referrerPolicy="no-referrer"
-        crossOrigin="anonymous"
         onError={() => setBroken(true)}
       />
       {selected && (

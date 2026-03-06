@@ -105,6 +105,56 @@ app.post('/api/fal/*', async (req, res) => {
   }
 });
 
+// ── fal.ai Queue Proxy ───────────────────────────────────────
+// POST /api/fal-queue/*  →  https://queue.fal.run/*  (提交任务)
+// GET  /api/fal-queue/*  →  https://queue.fal.run/*  (轮询状态 / 获取结果)
+app.post('/api/fal-queue/*', async (req, res) => {
+  const apiKey = process.env.FAL_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'FAL_API_KEY not configured' });
+
+  const path = req.params[0];
+  const falUrl = `https://queue.fal.run/${path}`;
+
+  try {
+    const response = await fetch(falUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Key ${apiKey}`,
+      },
+      body: JSON.stringify(req.body),
+    });
+
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    console.error('fal.ai queue POST error:', err.message);
+    res.status(502).json({ error: `Proxy error: ${err.message}` });
+  }
+});
+
+app.get('/api/fal-queue/*', async (req, res) => {
+  const apiKey = process.env.FAL_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'FAL_API_KEY not configured' });
+
+  const path = req.params[0];
+  const falUrl = `https://queue.fal.run/${path}`;
+
+  try {
+    const response = await fetch(falUrl, {
+      headers: {
+        'Authorization': `Key ${apiKey}`,
+      },
+    });
+
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    console.error('fal.ai queue GET error:', err.message);
+    res.status(502).json({ error: `Proxy error: ${err.message}` });
+  }
+});
+
 // ── Web Fetch Proxy（替代 CORS 第三方代理） ───────────────────
 app.get('/api/fetch-url', async (req, res) => {
   const url = req.query.url;

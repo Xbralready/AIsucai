@@ -103,10 +103,9 @@ export default function ProductInput() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="text-center mb-10">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-2">奇富AI视频生产平台</h1>
-        <p className="text-base text-slate-500 mb-6">输入产品信息</p>
+    <div>
+      <div className="mb-8">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2">输入产品信息</h1>
         <p className="text-sm text-slate-400">
           粘贴产品链接、手动填写或上传产品图片，AI 将自动分析
         </p>

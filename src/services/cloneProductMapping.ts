@@ -45,7 +45,8 @@ export async function parseProductInfo(
   "key_features": ["关键功能1", "关键功能2"],
   "differentiators": ["差异化优势1", "差异化优势2"],
   "risk_sensitive": true/false (是否为风险敏感产品，如金融、医疗),
-  "additional_notes": "其他备注"
+  "additional_notes": "其他备注",
+  "image_urls": ["产品图片URL1", "产品图片URL2"]
 }
 
 重要提示：
@@ -53,7 +54,8 @@ export async function parseProductInfo(
 2. 提取最能打动用户的核心卖点（3个以内）
 3. 用简洁有力的语言描述痛点和卖点
 4. 如果是金融、医疗、保健品等产品，risk_sensitive 设为 true
-5. 只返回 JSON，不要有其他文字`;
+5. image_urls: 尽量找到 3-5 张真实可访问的产品图片 URL（产品主图、细节图、场景图）。如果有网页内容，从中提取图片；如果没有，请通过搜索找到产品的真实图片链接
+6. 只返回 JSON，不要有其他文字`;
 
   let userContent = '';
   if (input.url) {
@@ -72,6 +74,7 @@ export async function parseProductInfo(
     userContent,
     maxTokens: 2048,
     temperature: 0.3,
+    tools: [{ type: 'web_search_preview' }],
   });
 }
 
@@ -101,7 +104,12 @@ export async function extractProductPreview(
     draft.product_url = url;
   }
 
-  return { draft, webImages: webContent.images };
+  // 优先用 HTML 提取的图片，没有则用 GPT 搜索到的图片
+  const webImages = webContent.images.length > 0
+    ? webContent.images
+    : (draft.image_urls || []);
+
+  return { draft, webImages };
 }
 
 /**

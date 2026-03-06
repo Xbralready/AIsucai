@@ -13,6 +13,10 @@ export default function CloneResult() {
     fittedStructure,
     cloneScript,
     compiledWorlds,
+    cloneScriptVariations,
+    activeVariationIndex,
+    setActiveVariationIndex,
+    cloneBatchCount,
     accordionState,
     toggleAccordion,
     setCloneStep,
@@ -28,6 +32,15 @@ export default function CloneResult() {
     : clonePipelinePhase === 'error'
       ? 0
       : Math.max(5, (phaseIndex / 3) * 100);
+
+  // Active variation (from batch variations or fallback to single script)
+  const hasVariations = cloneScriptVariations.length > 1;
+  const activeVariation = cloneScriptVariations.length > 0
+    ? cloneScriptVariations[activeVariationIndex]
+    : cloneScript ? { label: '默认方案', script: cloneScript, compiledWorlds } : null;
+
+  const displayScript = activeVariation?.script ?? null;
+  const displayWorlds = activeVariation?.compiledWorlds ?? [];
 
   return (
     <div className="space-y-4">
@@ -47,7 +60,9 @@ export default function CloneResult() {
           <div className="flex justify-between mt-2 text-xs text-slate-400">
             <span className={phaseIndex >= 0 ? 'text-emerald-600' : ''}>分析视频</span>
             <span className={phaseIndex >= 1 ? 'text-emerald-600' : ''}>映射产品</span>
-            <span className={phaseIndex >= 2 ? 'text-emerald-600' : ''}>生成脚本</span>
+            <span className={phaseIndex >= 2 ? 'text-emerald-600' : ''}>
+              生成脚本{cloneBatchCount > 1 ? ` (${cloneBatchCount}套)` : ''}
+            </span>
           </div>
         </div>
       )}
@@ -178,27 +193,64 @@ export default function CloneResult() {
         </CloneAccordionSection>
       )}
 
+      {/* Variation selector (only when multiple variations exist) */}
+      {hasVariations && (
+        <div className="bg-white rounded-xl border border-slate-200 p-4">
+          <h4 className="text-sm font-semibold text-slate-900 mb-3">
+            脚本变体 ({cloneScriptVariations.length} 套)
+          </h4>
+          <div className="flex gap-3 overflow-x-auto pb-2">
+            {cloneScriptVariations.map((v, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveVariationIndex(i)}
+                className={`flex-shrink-0 p-3 rounded-lg border text-left min-w-[160px] transition-all ${
+                  activeVariationIndex === i
+                    ? 'border-emerald-500 bg-emerald-50'
+                    : 'border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`text-xs font-semibold ${
+                    activeVariationIndex === i ? 'text-emerald-700' : 'text-slate-600'
+                  }`}>
+                    变体 {i + 1}
+                  </span>
+                  {activeVariationIndex === i && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">当前</span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500 line-clamp-2">{v.label}</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  {v.script.scenes.length} 场景 / {v.compiledWorlds.length} 段
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Script accordion */}
-      {cloneScript && (
+      {displayScript && (
         <CloneAccordionSection
-          title="视频脚本"
-          subtitle={`${cloneScript.scenes.length} 场景 · ${cloneScript.total_duration}s`}
-          badge={`${compiledWorlds.length} 段视频`}
+          title={hasVariations ? `视频脚本 - 变体 ${activeVariationIndex + 1}` : '视频脚本'}
+          subtitle={`${displayScript.scenes.length} 场景 · ${displayScript.total_duration}s`}
+          badge={`${displayWorlds.length} 段视频`}
           isOpen={accordionState.script}
           onToggle={() => toggleAccordion('script')}
         >
           <div className="pt-4 space-y-4">
             {/* Character */}
-            {cloneScript.character && (
+            {displayScript.character && (
               <div className="bg-emerald-50 rounded-lg p-3">
                 <p className="text-xs font-medium text-emerald-700 mb-1">角色设定</p>
-                <p className="text-xs text-emerald-800">{cloneScript.character.description}</p>
+                <p className="text-xs text-emerald-800">{displayScript.character.description}</p>
               </div>
             )}
 
             {/* Scenes */}
             <div className="space-y-3">
-              {cloneScript.scenes.map((scene, i) => (
+              {displayScript.scenes.map((scene, i) => (
                 <div key={scene.scene_id} className="bg-slate-50 rounded-lg p-3 border border-slate-100">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -241,9 +293,12 @@ export default function CloneResult() {
       )}
 
       {/* Video Generator */}
-      {clonePipelinePhase === 'ready' && compiledWorlds.length > 0 && (
+      {clonePipelinePhase === 'ready' && displayWorlds.length > 0 && (
         <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6">
-          <CloneVideoGenerator />
+          <CloneVideoGenerator
+            variationIndex={activeVariationIndex}
+            compiledWorlds={displayWorlds}
+          />
         </div>
       )}
 
